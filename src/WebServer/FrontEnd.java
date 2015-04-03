@@ -4,25 +4,26 @@ import java.io.IOException;
 import java.net.ServerSocket;
 
 public class FrontEnd {
-	private static final int NUM_THREADS = 1;
+	private static final int NUM_THREADS = 4;
     private static Thread[] threads = new Thread[NUM_THREADS];
     private static ServerSocket myServerSocket;
 
 	public static void main(String args[]) {
         init();
+        runLoop();
+	}
+
+    private static void runLoop() {
         while(true) {
             for(int i = 0; i < NUM_THREADS; ++i) {
-                if(threads[i].isAlive()) {
-                    threads[i].start();
+                if(!threads[i].isAlive()) {
+                    threads[i].run();
+                } else {
+                    System.out.print(".");
                 }
             }
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
         }
-	}
+    }
 
     public static ServerSocket getMyServerSocket() {
         return myServerSocket;

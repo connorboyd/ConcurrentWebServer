@@ -13,7 +13,7 @@ public class Listener implements Runnable {
 	@Override
 	public void run() {
         try {
-            initSocket();   // TODO: Change name of method?
+            initSocket();
             String filePath = getFilePath();
             String response = FileCache.getFile(filePath);
             myOS.write(response.getBytes());

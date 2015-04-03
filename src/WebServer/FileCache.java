@@ -16,7 +16,7 @@ public class FileCache {
 		try {
 			return new String(Files.readAllBytes(Paths.get(filePath)));
 		} catch (IOException e) {
-			return "Error opening file";
+			return "Error opening file"; // For some reason, this doesn't get sent to the browser
 		}
 	}
 }
