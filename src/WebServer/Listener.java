@@ -24,9 +24,7 @@ public class Listener implements Runnable {
 	public void run() {
         try {
             String filePath = getFilePath();
-            String response = FileCache.getFile(filePath);
-            // TODO HTTP response code and headers
-            // HTTP/1.1 200 OK
+            byte[] response = FileCache.getFile(filePath);
             String headers = "HTTP/1.1 ";
             String statusCode = (response != null) ? "200 OK" : "404 Not Found";
 
@@ -35,10 +33,10 @@ public class Listener implements Runnable {
             myOS.write('\n');
             myOS.write('\n');
             if (response != null) {
-                myOS.write(response.getBytes());
+                myOS.write(response);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         } finally {
             try {
                 mySocket.close();

@@ -6,15 +6,15 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class FileCache {
 
-	private static ConcurrentHashMap<String, String> fileHashMap = new ConcurrentHashMap<String, String>();
+	private static ConcurrentHashMap<String, byte[]> fileHashMap = new ConcurrentHashMap<String, byte[]>();
 
-	public static String getFile(String filePath) { // TODO LRU? Expiration?
+	public static byte[] getFile(String filePath) {
 		return fileHashMap.computeIfAbsent(filePath, path -> readFileToString(path) );
 	}
 
-	private static String readFileToString(String filePath) {
+	private static byte[] readFileToString(String filePath) {
 		try {
-			return new String(Files.readAllBytes(Paths.get(filePath)));
+			return Files.readAllBytes(Paths.get(filePath));
 		} catch (IOException e) {
 			return null;
 		}
