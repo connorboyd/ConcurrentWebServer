@@ -2,36 +2,43 @@ package WebServer;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class FrontEnd {
-	private static final int NUM_THREADS = 4;
-    private static Thread[] threads = new Thread[NUM_THREADS];
+	private static final int NUM_THREADS = 8;
     private static ServerSocket myServerSocket;
+    private static AtomicInteger numActiveThreads = new AtomicInteger(0);
 
 	public static void main(String args[]) {
         init();
         runLoop();
 	}
 
-    private static void runLoop() {
-        while(true) {
-            for(int i = 0; i < NUM_THREADS; ++i) {
-                if(!threads[i].isAlive()) {
-                    threads[i].run();
-                } else {
-                    System.out.print(".");
-                }
-            }
-        }
+    public static void threadEnd() {
+        numActiveThreads.getAndDecrement();
     }
 
-    public static ServerSocket getMyServerSocket() {
-        return myServerSocket;
+    private static void runLoop() {
+        while(true) {
+            while(numActiveThreads.get() >= NUM_THREADS) {
+                Thread.yield(); // TODO: Measure performance with and without yielding
+            }
+            Socket newSocket;
+            try {
+                newSocket = myServerSocket.accept();
+            } catch (IOException e) {
+                System.err.println("Error accepting socket");
+                continue;
+            }
+
+            new Thread(new Listener(newSocket)).start();
+            numActiveThreads.incrementAndGet();
+        }
     }
 
     private static void init() {
         initServerSocket();
-        initThreadPool();
     }
 
     private static void initServerSocket() {
@@ -42,9 +49,4 @@ public class FrontEnd {
         }
     }
 
-    private static void initThreadPool() {
-        for(int i = 0; i < NUM_THREADS; ++i) {
-            threads[i] = new Thread(new Listener());
-        }
-    }
 }

@@ -10,13 +10,33 @@ public class Listener implements Runnable {
     private InputStream myIS;
     private OutputStream myOS;
 
+    public Listener(Socket reqSocket) {
+        this.mySocket = reqSocket;
+        try {
+            this.myIS = this.mySocket.getInputStream();
+            this.myOS = this.mySocket.getOutputStream();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 	@Override
 	public void run() {
         try {
-            initSocket();
             String filePath = getFilePath();
             String response = FileCache.getFile(filePath);
-            myOS.write(response.getBytes());
+            // TODO HTTP response code and headers
+            // HTTP/1.1 200 OK
+            String headers = "HTTP/1.1 ";
+            String statusCode = (response != null) ? "200 OK" : "404 Not Found";
+
+            myOS.write(headers.getBytes());
+            myOS.write(statusCode.getBytes());
+            myOS.write('\n');
+            myOS.write('\n');
+            if (response != null) {
+                myOS.write(response.getBytes());
+            }
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -25,6 +45,7 @@ public class Listener implements Runnable {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            FrontEnd.threadEnd();
         }
     }
 
@@ -43,16 +64,5 @@ public class Listener implements Runnable {
             e.printStackTrace();
         }
         return "blah.txt";
-    }
-
-
-    private void initSocket() {
-        try {
-            mySocket = FrontEnd.getMyServerSocket().accept();
-            myIS = mySocket.getInputStream();
-            myOS = mySocket.getOutputStream();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }
