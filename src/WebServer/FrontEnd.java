@@ -3,6 +3,8 @@ package WebServer;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class FrontEnd {
@@ -20,6 +22,8 @@ public class FrontEnd {
     }
 
     private static void runLoop() {
+        ExecutorService executor = Executors.newFixedThreadPool(NUM_THREADS);
+        //ExecutorService executor = Executors.newWorkStealingPool();
         while(true) {
             while(numActiveThreads.get() >= NUM_THREADS) {
                 Thread.yield(); // TODO: Measure performance with and without yielding
@@ -32,7 +36,7 @@ public class FrontEnd {
                 continue;
             }
 
-            new Thread(new Listener(newSocket)).start();
+            executor.execute(new Listener(newSocket));
             numActiveThreads.incrementAndGet();
         }
     }
