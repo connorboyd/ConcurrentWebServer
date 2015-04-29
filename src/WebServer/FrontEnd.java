@@ -20,7 +20,7 @@ public class FrontEnd {
 	}
 
     public static void threadEnd(Listener listen) {
-        try { // Try at most twice to add Listener to queue
+        try {
             runnableQueue.put(listen);
         } catch (InterruptedException e) {
             threadEnd(listen); // Keep trying to add Listener to queue
