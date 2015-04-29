@@ -22,12 +22,11 @@ public class FrontEnd {
     }
 
     private static void runLoop() {
-        ExecutorService executor = Executors.newFixedThreadPool(NUM_THREADS);
+        ExecutorService executor = Executors.newCachedThreadPool();
+        //ExecutorService executor = Executors.newSingleThreadExecutor();
+        //ExecutorService executor = Executors.newFixedThreadPool(NUM_THREADS);
         //ExecutorService executor = Executors.newWorkStealingPool();
         while(true) {
-            while(numActiveThreads.get() >= NUM_THREADS) {
-                Thread.yield(); // TODO: Measure performance with and without yielding
-            }
             Socket newSocket;
             try {
                 newSocket = myServerSocket.accept();
