@@ -10,13 +10,16 @@ public class Listener implements Runnable {
     private InputStream myIS;
     private OutputStream myOS;
 
-    public Listener(Socket reqSocket) {
-        this.mySocket = reqSocket;
+    public Listener() {
+    }
+
+    public void setMySocket(Socket sock) {
+        this.mySocket = sock;
         try {
-            this.myIS = this.mySocket.getInputStream();
-            this.myOS = this.mySocket.getOutputStream();
+            this.myIS = mySocket.getInputStream();
+            this.myOS = mySocket.getOutputStream();
         } catch (IOException e) {
-            e.printStackTrace();
+            cleanUp();
         }
     }
 
@@ -38,13 +41,20 @@ public class Listener implements Runnable {
         } catch (IOException e) {
             //e.printStackTrace();
         } finally {
-            try {
-                mySocket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            FrontEnd.threadEnd();
+            cleanUp();
         }
+    }
+
+    private void cleanUp() {
+        try {
+            mySocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        mySocket = null; // Cleanup variables to be garbage collected
+        myIS = null;
+        myOS = null;
+        FrontEnd.threadEnd(this);
     }
 
 
